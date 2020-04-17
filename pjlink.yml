@@ -3,7 +3,7 @@ password: defPass
 
 ## in the devices section, specify password exceptions for any hosts. If host is not specified, the default password rules
 devices:
-  - host: my-fancy-beamer1.localnetwork
-    pass: specialPass1
+  - host: n24-h15-beamer.mt.uni-ulm.de
+    pass: bsd
   - host: my-fancy-beamer2.localnetwork
     pass: specialPass2

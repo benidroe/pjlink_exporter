@@ -14,6 +14,48 @@ However, only commands according to PJLink Class 1 are implemented yet.
 Visit http://localhost:2112/pjlink?target=mybeamername.localnetwork where mybeamername.localnetwork is the IP or DNS-Name of the
 PJLink device to get metrics from.
 
+## Installation
+
+Clone this repository from github to your go directory. Within this repository run:
+
+```
+make build
+```
+
+Copy build to your /usr/local/bin
+
+```
+cp pjlink_exporter /usr/local/bin
+```
+
+Create config file
+
+```
+mkdir /etc/pjlink_exporter/
+vim /etc/pjlink_exporter/pjlink.yml
+```
+
+Edit config file as described in section Configuration
+
+Change permissions
+```
+chown prometheus:prometheus /etc/pjlink_exporter/pjlink.yml
+chown prometheus:prometheus /usr/local/bin/pjlink_exporter
+```
+
+Setup exporter as daemon
+
+```
+vim /etc/init.d/pjlink_exporter
+chmod +x /etc/init.d/pjlink_exporter
+update-rc.d pjlink_exporter defaults
+
+vim /etc/default/pjlink_exporter
+START=yes
+
+```
+
+
 ## Configuration
 
 The pjlink exporter reads from a `pjlink.yml` config file by default.
