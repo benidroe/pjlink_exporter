@@ -36,7 +36,7 @@ devices:
 
 ## Prometheus Configuration
 
-The snmp exporter needs to be passed the address as a parameter, this can be
+The pjlink exporter needs to be passed the address as a parameter, this can be
 done with relabelling.
 
 Example config:
@@ -57,3 +57,5 @@ scrape_configs:
         replacement: 127.0.0.1:2112  # The PJLink exporter's real hostname:port.
 ```
 
+## Contributions
+Thanks to https://github.com/prometheus/snmp_exporter. This project was used as example and for inspriration while realizing this exporter.
