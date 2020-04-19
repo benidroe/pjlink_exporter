@@ -92,16 +92,17 @@ responseWorker evaluates the devices response
 
 func responseWorker(res string, conn net.Conn, pass string, authenticated *bool, pjSlice *[]prometheus.Metric, logger log.Logger) bool {
 
-	a, _ := regexp.Compile("PJLINK 1 [a-z0-9]{8}") // PJLink requires authentification
-	b, _ := regexp.Compile("PJLINK ERRA")          // PJLink authentification error
-	c, _ := regexp.Compile("PJLINK 0")             // PJLink does not require authentification
-	d, _ := regexp.Compile(`\W1POWR\W`)            // Power Response
-	e, _ := regexp.Compile(`\W1INPT\W`)            // Input Response
-	f, _ := regexp.Compile(`\W1AVMT\W`)            // AV-Mute Response
-	g, _ := regexp.Compile(`\W1ERST\W`)            // Error status Response
-	h, _ := regexp.Compile(`\W1LAMP\W`)            // Lamp status Response
+	a, _ := regexp.Compile("PJLINK 1 [A-Za-z0-9]{8}") // PJLink requires authentification
+	b, _ := regexp.Compile("PJLINK ERRA")             // PJLink authentification error
+	c, _ := regexp.Compile("PJLINK 0")                // PJLink does not require authentification
+	d, _ := regexp.Compile(`\W1POWR\W`)               // Power Response
+	e, _ := regexp.Compile(`\W1INPT\W`)               // Input Response
+	f, _ := regexp.Compile(`\W1AVMT\W`)               // AV-Mute Response
+	g, _ := regexp.Compile(`\W1ERST\W`)               // Error status Response
+	h, _ := regexp.Compile(`\W1LAMP\W`)               // Lamp status Response
 
 	if a.MatchString(res) { // device requests an authentification
+		level.Info(logger).Log("msg", "Try to authenticate...")
 		return authenticate(res, conn, pass, logger)
 
 	} else if b.MatchString(res) { // device sends authentification error
