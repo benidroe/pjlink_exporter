@@ -4,6 +4,6 @@ password: defPass
 ## in the devices section, specify password exceptions for any hosts. If host is not specified, the default password rules
 devices:
   - host: my-fancy-beamer1.localnetwork
-    pass: canaryPass
+    pass: canaryPassss
   - host: my-fancy-beamer2.localnetwork
     pass: anotherCanaryPass
