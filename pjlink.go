@@ -92,6 +92,10 @@ responseWorker evaluates the devices response
 
 func responseWorker(res string, conn net.Conn, pass string, authenticated *bool, pjSlice *[]prometheus.Metric, logger log.Logger) bool {
 
+	if checkForErrorcode(res, logger) {
+		return false
+	}
+
 	a, _ := regexp.Compile("PJLINK 1 [A-Za-z0-9]{8}") // PJLink requires authentification
 	b, _ := regexp.Compile("PJLINK ERRA")             // PJLink authentification error
 	c, _ := regexp.Compile("PJLINK 0")                // PJLink does not require authentification
@@ -343,5 +347,15 @@ func updateLamps(res string, pjSlice *[]prometheus.Metric, logger log.Logger) bo
 	}
 
 	return true
+
+}
+
+func checkForErrorcode(res string, logger log.Logger) bool {
+	errorpattern, _ := regexp.Compile(`[12A-Za-z]*\=ERR\d`) // Power Response
+	if errorpattern.MatchString(res) {
+		level.Debug(logger).Log("msg", "Error scraping target. PJ Link ERR-Code detected in response", "response", res)
+		return true
+	}
+	return false
 
 }
