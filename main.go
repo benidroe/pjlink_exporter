@@ -19,7 +19,7 @@ import (
 var (
 	listenAddress = kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry.").Default(":2112").String()
 	configFile    = kingpin.Flag("config.file", "Path to configuration file.").Default("pjlink.yml").String()
-	logLevel      = kingpin.Flag("config.loglevel", "LogLevel - Debug, Info, Warn, Error").Default("Debug").String()
+	logLevel      = kingpin.Flag("config.loglevel", "LogLevel - Debug, Info, Warn, Error").Default("Info").String()
 
 	// Metrics about the SNMP exporter itself.
 	pjlinkDuration = prometheus.NewSummaryVec(
