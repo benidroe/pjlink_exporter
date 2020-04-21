@@ -19,6 +19,7 @@ import (
 var (
 	listenAddress = kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry.").Default(":2112").String()
 	configFile    = kingpin.Flag("config.file", "Path to configuration file.").Default("pjlink.yml").String()
+	logLevel      = kingpin.Flag("config.loglevel", "LogLevel - Debug, Info, Warn, Error").Default("Debug").String()
 
 	// Metrics about the SNMP exporter itself.
 	pjlinkDuration = prometheus.NewSummaryVec(
@@ -75,6 +76,22 @@ func main() {
 
 	var logger log.Logger
 	logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
+	switch *logLevel {
+
+	case `Debug`:
+		logger = level.NewFilter(logger, level.AllowDebug())
+		level.Info(logger).Log("msg", "Starting with loglevel Debug")
+	case `Info`:
+		logger = level.NewFilter(logger, level.AllowInfo())
+		level.Info(logger).Log("msg", "Starting with loglevel Info")
+	case `Warn`:
+		logger = level.NewFilter(logger, level.AllowWarn())
+		level.Info(logger).Log("msg", "Starting with loglevel Warn")
+	case `Error`:
+		logger = level.NewFilter(logger, level.AllowError())
+		level.Info(logger).Log("msg", "Starting with loglevel Error")
+	}
+
 	level.Info(logger).Log("msg", "Starting pjlink_exporter...")
 
 	kingpin.HelpFlag.Short('h')
@@ -96,14 +113,14 @@ func main() {
 				if err := config.readConfig(*configFile); err != nil {
 					level.Error(logger).Log("msg", "Error reloading config", "err", err)
 				} else {
-					level.Info(logger).Log("msg", "Loaded config file")
+					level.Info(logger).Log("msg", "Reloaded config file")
 				}
 			case rc := <-reloadCh:
 				if err := config.readConfig(*configFile); err != nil {
 					level.Error(logger).Log("msg", "Error reloading config", "err", err)
 					rc <- err
 				} else {
-					level.Info(logger).Log("msg", "Loaded config file")
+					level.Info(logger).Log("msg", "Reloaded config file")
 					rc <- nil
 				}
 			}

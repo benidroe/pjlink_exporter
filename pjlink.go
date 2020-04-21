@@ -108,7 +108,7 @@ func responseWorker(res string, conn net.Conn, pass string, authenticated *bool,
 	h, _ := regexp.Compile(`\W1LAMP\W`)               // Lamp status Response
 
 	if a.MatchString(res) { // device requests an authentification
-		level.Info(logger).Log("msg", "Try to authenticate...")
+		level.Debug(logger).Log("msg", "Try to authenticate...")
 		return authenticate(res, conn, pass, logger)
 
 	} else if b.MatchString(res) { // device sends authentification error
@@ -120,7 +120,7 @@ func responseWorker(res string, conn net.Conn, pass string, authenticated *bool,
 		return true
 	} else if d.MatchString(res) { // update power value
 		*authenticated = true // this is the first successfull response after authentification.
-		level.Info(logger).Log("msg", "Scraping target. PJ Link authentification successfull")
+		level.Debug(logger).Log("msg", "Scraping target. PJ Link authentification successfull")
 		return updatePower(res, pjSlice, logger)
 
 	} else if e.MatchString(res) { // update input value
