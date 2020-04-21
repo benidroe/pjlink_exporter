@@ -19,6 +19,8 @@ const port = 4352 // The PJLink default TCP - Port
 
 var metrics = []string{"%%1INPT ?", "%%1AVMT ?", "%%1ERST ?", "%%1LAMP ?"} // Send all except power. Power is already send while authentification procedure.
 
+var pjdialer = net.Dialer{Timeout: 1 * time.Second}
+
 /*
 func main() {
 	walkpjlink(dest, pass)
@@ -29,8 +31,8 @@ func walkpjlink(dest string, pass string, pjSlice *[]prometheus.Metric, logger l
 	var authenticated = false // Switch for authentication
 
 	level.Debug(logger).Log("msg", "Start PJLink connection to"+dest)
-	d := net.Dialer{Timeout: 2 * time.Second}
-	conn, err := d.Dial("tcp", dest+":"+strconv.Itoa(port))
+
+	conn, err := pjdialer.Dial("tcp", dest+":"+strconv.Itoa(port))
 	// timeoutDuration := 2 * time.Second
 	// conn.SetReadDeadline(time.Now().Add(timeoutDuration))
 	if err != nil {
