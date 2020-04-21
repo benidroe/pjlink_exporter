@@ -76,21 +76,26 @@ func main() {
 
 	var logger log.Logger
 	logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
-	switch *logLevel {
 
-	case `Debug`:
-		logger = level.NewFilter(logger, level.AllowDebug())
-		level.Info(logger).Log("msg", "Starting with loglevel Debug")
-	case `Info`:
-		logger = level.NewFilter(logger, level.AllowInfo())
-		level.Info(logger).Log("msg", "Starting with loglevel Info")
-	case `Warn`:
-		logger = level.NewFilter(logger, level.AllowWarn())
-		level.Info(logger).Log("msg", "Starting with loglevel Warn")
-	case `Error`:
-		logger = level.NewFilter(logger, level.AllowError())
-		level.Info(logger).Log("msg", "Starting with loglevel Error")
-	}
+	/*
+		switch *logLevel {
+
+
+		case `Debug`:
+			logger = level.NewFilter(logger, level.AllowDebug())
+			level.Info(logger).Log("msg", "Starting with loglevel Debug")
+		case `Info`:
+			logger = level.NewFilter(logger, level.AllowInfo())
+			level.Info(logger).Log("msg", "Starting with loglevel Info")
+		case `Warn`:
+			logger = level.NewFilter(logger, level.AllowWarn())
+			level.Info(logger).Log("msg", "Starting with loglevel Warn")
+		case `Error`:
+			logger = level.NewFilter(logger, level.AllowError())
+			level.Info(logger).Log("msg", "Starting with loglevel Error")
+		} */
+
+	logger = level.NewFilter(logger, level.AllowInfo())
 
 	level.Info(logger).Log("msg", "Starting pjlink_exporter...")
 
