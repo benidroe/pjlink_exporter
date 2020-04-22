@@ -21,18 +21,18 @@ var (
 	configFile    = kingpin.Flag("config.file", "Path to configuration file.").Default("pjlink.yml").String()
 	logLevel      = kingpin.Flag("log.level", "LogLevel - Debug, Info, Warn, Error").Default("Debug").String()
 
-	// Metrics about the SNMP exporter itself.
+	// Metrics about the PJLink exporter itself.
 	pjlinkDuration = prometheus.NewSummaryVec(
 		prometheus.SummaryOpts{
-			Name: "snmp_collection_duration_seconds",
-			Help: "Duration of collections by the SNMP exporter",
+			Name: "pjlink_collection_duration_seconds",
+			Help: "Duration of collections by the PJLink exporter",
 		},
 		[]string{"module"},
 	)
 	pjlinkRequestErrors = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "snmp_request_errors_total",
-			Help: "Errors in requests to the SNMP exporter",
+			Name: "pjlink_request_errors_total",
+			Help: "Errors in requests to the PJLink exporter",
 		},
 	)
 
