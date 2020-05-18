@@ -46,7 +46,7 @@ chown prometheus:prometheus /usr/local/bin/pjlink_exporter
 Setup exporter as daemon
 
 ```
-vim /etc/init.d/pjlink_exporter
+cp init.d.pjlink_exporter /etc/init.d/pjlink_exporter
 chmod +x /etc/init.d/pjlink_exporter
 update-rc.d pjlink_exporter defaults
 
