@@ -29,6 +29,7 @@ func main() {
 func walkpjlink(dest string, pass string, pjSlice *[]prometheus.Metric, logger log.Logger) {
 
 	var authenticated = false // Switch for authentication
+	var hasReply = false      // True, when device has replied with meaningful values
 
 	level.Debug(logger).Log("msg", "Start PJLink connection to"+dest)
 
@@ -43,6 +44,11 @@ func walkpjlink(dest string, pass string, pjSlice *[]prometheus.Metric, logger l
 			prometheus.GaugeValue,
 			float64(0)))
 		return
+	} else {
+		*pjSlice = append(*pjSlice, prometheus.MustNewConstMetric(
+			prometheus.NewDesc("pjlink_up", "device is up", nil, nil),
+			prometheus.GaugeValue,
+			float64(1)))
 	}
 	defer conn.Close() // Als Letztes die Verbindung trennen
 
@@ -50,13 +56,13 @@ func walkpjlink(dest string, pass string, pjSlice *[]prometheus.Metric, logger l
 	for {
 		message, err := bufio.NewReader(conn).ReadString('\r')
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("mep", err)
 			level.Info(logger).Log("msg", "Error scraping target. Can't read response from device", "err", err)
 			return
 		}
 		level.Debug(logger).Log("msg", "Scraping target. Response from device", "message", message)
 
-		if responseWorker(message, conn, pass, &authenticated, pjSlice, logger) == false {
+		if responseWorker(message, conn, pass, &authenticated, &hasReply, pjSlice, logger) == false {
 			break
 		}
 		if authenticated {
@@ -74,15 +80,22 @@ func walkpjlink(dest string, pass string, pjSlice *[]prometheus.Metric, logger l
 
 			message, _ := bufio.NewReader(conn).ReadString('\r') // read response
 			level.Debug(logger).Log("msg", "Scraping target. Response from device", "message", message)
-			responseWorker(message, conn, pass, &authenticated, pjSlice, logger) // evaluate response
+			responseWorker(message, conn, pass, &authenticated, &hasReply, pjSlice, logger) // evaluate response
 		}
 
-		// Append Metric to result set pjSlice, device is up
+	}
+
+	// Jetzt noch den Wert liefern, ob die Antwort des Gerätes auch Werte enthielt.
+	if hasReply {
 		*pjSlice = append(*pjSlice, prometheus.MustNewConstMetric(
-			prometheus.NewDesc("pjlink_up", "device is up", nil, nil),
+			prometheus.NewDesc("pjlink_reply", "device is replying", nil, nil),
 			prometheus.GaugeValue,
 			float64(1)))
-
+	} else {
+		*pjSlice = append(*pjSlice, prometheus.MustNewConstMetric(
+			prometheus.NewDesc("pjlink_reply", "device is replying", nil, nil),
+			prometheus.GaugeValue,
+			float64(0)))
 	}
 
 }
@@ -93,7 +106,7 @@ responseWorker evaluates the devices response
 
 */
 
-func responseWorker(res string, conn net.Conn, pass string, authenticated *bool, pjSlice *[]prometheus.Metric, logger log.Logger) bool {
+func responseWorker(res string, conn net.Conn, pass string, authenticated *bool, hasReply *bool, pjSlice *[]prometheus.Metric, logger log.Logger) bool {
 
 	if checkForErrorcode(res, logger) {
 		return false
@@ -114,6 +127,12 @@ func responseWorker(res string, conn net.Conn, pass string, authenticated *bool,
 
 	} else if b.MatchString(res) { // device sends authentification error
 		level.Info(logger).Log("msg", "Error scraping target. PJ Link authentification error")
+
+		// Append Metric to result set pjSlice, authentification failed
+		*pjSlice = append(*pjSlice, prometheus.MustNewConstMetric(
+			prometheus.NewDesc("pjlink_authentification", "device authentification state", nil, nil),
+			prometheus.GaugeValue,
+			float64(0)))
 		return false
 	} else if c.MatchString(res) { // device does not require authentification
 		level.Debug(logger).Log("msg", "Scraping target. PJ Link does not require authentification")
@@ -121,6 +140,14 @@ func responseWorker(res string, conn net.Conn, pass string, authenticated *bool,
 		return true
 	} else if d.MatchString(res) { // update power value
 		*authenticated = true // this is the first successfull response after authentification.
+		*hasReply = true      // device has replied with meaningful values
+
+		// Append Metric to result set pjSlice, authentification stat ok
+		*pjSlice = append(*pjSlice, prometheus.MustNewConstMetric(
+			prometheus.NewDesc("pjlink_authentification", "device authentification state", nil, nil),
+			prometheus.GaugeValue,
+			float64(1)))
+
 		level.Debug(logger).Log("msg", "Scraping target. PJ Link authentification successfull")
 		return updatePower(res, pjSlice, logger)
 
